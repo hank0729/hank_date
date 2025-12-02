@@ -1,0 +1,715 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <title>流程行程日曆</title>
+  <style>
+
+body.app-mode {
+  background: #101010;
+  padding: 0;
+}
+
+body.app-mode .calendar-wrapper {
+  max-width: none;
+  width: 100vw;
+  height: 100vh;
+  border-radius: 0;
+  box-shadow: none;
+  background: #101010;
+  color: #fff;
+  padding: calc(16px + env(safe-area-inset-top))
+           16px
+           calc(16px + env(safe-area-inset-bottom));
+}
+
+body.app-mode .calendar {
+  background: #181818;
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
+body.app-mode .calendar-header h2,
+body.app-mode .calendar-header span {
+  color: #fff;
+}
+
+body.app-mode .calendar-weekdays div {
+  color: #ccc;
+}
+
+body.app-mode .calendar-days button {
+  color: #f5f5f5;
+}
+
+body.app-mode .calendar-days button:hover {
+  background: #262626;
+}
+
+body.app-mode .details-panel {
+  background: #181818;
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
+body.app-mode .flow-card {
+  background: #202020;
+  border-color: rgba(255, 255, 255, 0.07);
+}
+
+body.app-mode .flow-title {
+  color: #fff;
+}
+
+body.app-mode .flow-date-range,
+body.app-mode .flow-description,
+body.app-mode .flow-progress-label,
+body.app-mode .hint-text,
+body.app-mode .no-events {
+  color: #ccc;
+}
+
+body.app-mode .nav-buttons button {
+  background: #202020;
+  border-color: rgba(255, 255, 255, 0.12);
+  color: #f5f5f5;
+}
+
+body.app-mode .nav-buttons button:hover {
+  background: #2a2a2a;
+}
+
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+        sans-serif;
+    }
+
+    body {
+      min-height: 100vh;
+      background: #f5f5f5;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+
+    .calendar-wrapper {
+      background: #ffffff;
+      border-radius: 16px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+      max-width: 1100px;
+      width: 100%;
+      padding: 20px 24px 24px;
+      display: grid;
+      grid-template-columns: 1.1fr 1.4fr;
+      gap: 20px;
+    }
+
+    @media (max-width: 900px) {
+      .calendar-wrapper {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .calendar-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .calendar-header h2 {
+      font-size: 20px;
+      font-weight: 600;
+    }
+
+    .calendar-header span {
+      font-size: 14px;
+      color: #777;
+    }
+
+    .nav-buttons {
+      display: flex;
+      gap: 8px;
+    }
+
+    .nav-buttons button {
+      border: 1px solid #ddd;
+      background: #fff;
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 13px;
+      cursor: pointer;
+      transition: background 0.15s, transform 0.05s;
+    }
+
+    .nav-buttons button:hover {
+      background: #f0f0f0;
+    }
+
+    .nav-buttons button:active {
+      transform: scale(0.96);
+    }
+
+    .calendar {
+      border-radius: 12px;
+      border: 1px solid #eee;
+      padding: 10px;
+    }
+
+    .calendar-weekdays,
+    .calendar-days {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 4px;
+    }
+
+    .calendar-weekdays div {
+      text-align: center;
+      font-size: 12px;
+      color: #999;
+      padding: 4px 0;
+    }
+
+    .calendar-days button {
+      border: none;
+      background: transparent;
+      aspect-ratio: 1 / 1;
+      border-radius: 8px;
+      font-size: 14px;
+      cursor: pointer;
+      position: relative;
+      padding: 0;
+      transition: background 0.15s, transform 0.05s;
+    }
+
+    .calendar-days button:hover {
+      background: #f2f2f2;
+    }
+
+    .calendar-days button.inactive {
+      color: #ccc;
+      cursor: default;
+    }
+
+    .calendar-days button.today {
+      border: 1px solid #ff6b6b;
+    }
+
+    .calendar-days button.selected {
+      background: #ff6b6b;
+      color: #fff;
+    }
+
+    .calendar-days button.has-flow::after {
+      content: "";
+      position: absolute;
+      width: 6px;
+      height: 6px;
+      border-radius: 999px;
+      background: #ff6b6b;
+      bottom: 4px;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+
+    .details-panel {
+      border-radius: 12px;
+      border: 1px solid #eee;
+      padding: 14px 16px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      max-height: 520px;
+      overflow: hidden;
+    }
+
+    .details-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 8px;
+    }
+
+    .details-header h3 {
+      font-size: 18px;
+      font-weight: 600;
+    }
+
+    .details-header span {
+      font-size: 13px;
+      color: #999;
+    }
+
+    .events-list {
+      flex: 1;
+      overflow-y: auto;
+      padding-right: 6px;
+    }
+
+    .flow-card {
+      border-radius: 10px;
+      border: 1px solid #eee;
+      padding: 10px 12px;
+      margin-bottom: 10px;
+      background: #fafafa;
+    }
+
+    .flow-title {
+      font-size: 15px;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    .flow-date-range {
+      font-size: 12px;
+      color: #888;
+      margin-bottom: 4px;
+    }
+
+    .flow-description {
+      font-size: 13px;
+      color: #555;
+      margin-bottom: 8px;
+      white-space: pre-wrap;
+    }
+
+    .flow-progress-label {
+      font-size: 13px;
+      color: #777;
+      margin-bottom: 6px;
+    }
+
+    .progress-line {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+
+    .progress-track {
+      position: absolute;
+      top: 50%;
+      left: 12px;
+      right: 12px;
+      height: 3px;
+      background: #e4e4e4;
+      transform: translateY(-50%);
+      z-index: 0;
+      border-radius: 999px;
+    }
+
+    .progress-track-fill {
+      position: absolute;
+      top: 50%;
+      left: 12px;
+      height: 3px;
+      background: #ff6b6b;
+      transform: translateY(-50%);
+      z-index: 1;
+      border-radius: 999px;
+      width: 0;
+      transition: width 0.2s ease-out;
+    }
+
+    .progress-step {
+      position: relative;
+      z-index: 2;
+      flex: 1;
+      display: flex;
+      justify-content: center;
+    }
+
+    .progress-step-dot {
+      width: 18px;
+      height: 18px;
+      border-radius: 999px;
+      border: 2px solid #ccc;
+      background: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+      font-weight: 600;
+      color: #999;
+    }
+
+    .progress-step-dot.done {
+      border-color: #ff6b6b;
+      background: #ff6b6b;
+      color: #fff;
+    }
+
+    .progress-step-dot.current {
+      border-color: #ff6b6b;
+      background: #fff;
+      color: #ff6b6b;
+      box-shadow: 0 0 0 3px rgba(255, 107, 107, 0.12);
+    }
+
+    .progress-steps-labels {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      margin-top: 2px;
+    }
+
+    .progress-steps-labels span {
+      flex: 1;
+      font-size: 11px;
+      text-align: center;
+      color: #666;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      overflow: hidden;
+    }
+
+    .no-events {
+      font-size: 14px;
+      color: #999;
+      margin-top: 12px;
+    }
+
+    .hint-text {
+      font-size: 12px;
+      color: #aaa;
+      margin-top: 4px;
+    }
+
+  </style>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="流程日曆">
+
+<link rel="apple-touch-icon" href="icon-180.png">
+
+</head>
+<body>
+  <div class="calendar-wrapper">
+    <div>
+      <div class="calendar-header">
+        <div>
+          <h2 id="monthYear"></h2>
+          <span id="todayText"></span>
+        </div>
+        <div class="nav-buttons">
+          <button id="prevMonth">〈 上一月</button>
+          <button id="todayBtn">今天</button>
+          <button id="nextMonth">下一月 〉</button>
+        </div>
+      </div>
+
+      <div class="calendar">
+        <div class="calendar-weekdays">
+          <div>日</div>
+          <div>一</div>
+          <div>二</div>
+          <div>三</div>
+          <div>四</div>
+          <div>五</div>
+          <div>六</div>
+        </div>
+        <div class="calendar-days" id="calendarDays"></div>
+      </div>
+    </div>
+    <div class="details-panel">
+      <div class="details-header">
+        <h3 id="selectedDateTitle">請選擇日期</h3>
+        <span>流程與進度</span>
+      </div>
+      <div class="events-list" id="eventsList">
+        <p class="no-events">
+          在左邊日曆點選有流程的日期（有紅點），即可查看該天有哪些流程正在進行。
+        </p>
+        <p class="hint-text">
+          流程與進度內容請直接在 <code>date.json</code> 中編輯，
+          前台僅顯示，不提供修改。
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+
+    const monthYearEl = document.getElementById("monthYear");
+    const todayTextEl = document.getElementById("todayText");
+    const calendarDaysEl = document.getElementById("calendarDays");
+    const eventsListEl = document.getElementById("eventsList");
+    const selectedDateTitleEl = document.getElementById("selectedDateTitle");
+
+    const prevMonthBtn = document.getElementById("prevMonth");
+    const nextMonthBtn = document.getElementById("nextMonth");
+    const todayBtn = document.getElementById("todayBtn");
+
+    let currentDate = new Date();
+    let flows = [];         
+    let flowsByDate = {};   
+    let selectedDateStr = ""; 
+
+    async function loadFlows() {
+      try {
+        const res = await fetch("date.json");
+        const data = await res.json();
+        flows = data.flows || [];
+
+        flowsByDate = buildFlowsByDate(flows);
+
+        renderCalendar(currentDate);
+      } catch (err) {
+        console.error("載入 date.json 失敗：", err);
+        eventsListEl.innerHTML =
+          '<p class="no-events">無法載入 <code>date.json</code>，請確認檔案是否存在且有透過伺服器開啟。</p>';
+      }
+    }
+
+    function buildFlowsByDate(flowsArray) {
+      const map = {};
+      flowsArray.forEach(flow => {
+        if (!flow.startDate || !flow.endDate) return;
+
+        const start = parseDateStr(flow.startDate);
+        const end = parseDateStr(flow.endDate);
+        if (!start || !end || end < start) return;
+
+        const cur = new Date(start.getTime());
+        while (cur <= end) {
+          const ds = formatDateStr(cur);
+          if (!map[ds]) map[ds] = [];
+          map[ds].push(flow);
+          cur.setDate(cur.getDate() + 1);
+        }
+      });
+      return map;
+    }
+
+    function renderCalendar(dateObj) {
+      const year = dateObj.getFullYear();
+      const month = dateObj.getMonth(); // 0-based
+
+      const firstDayOfMonth = new Date(year, month, 1);
+      const lastDayOfMonth = new Date(year, month + 1, 0);
+      const firstWeekday = firstDayOfMonth.getDay(); // 0=Sun
+      const daysInMonth = lastDayOfMonth.getDate();
+
+      const monthNames = [
+        "一月", "二月", "三月", "四月", "五月", "六月",
+        "七月", "八月", "九月", "十月", "十一月", "十二月"
+      ];
+
+      monthYearEl.textContent = `${year}年 ${monthNames[month]}`;
+
+      const today = new Date();
+      const todayStr = formatDateStr(today);
+      todayTextEl.textContent = `今天：${todayStr}`;
+
+      calendarDaysEl.innerHTML = "";
+
+      for (let i = 0; i < firstWeekday; i++) {
+        const emptyCell = document.createElement("div");
+        calendarDaysEl.appendChild(emptyCell);
+      }
+
+      for (let d = 1; d <= daysInMonth; d++) {
+        const btn = document.createElement("button");
+        btn.textContent = d;
+
+        const dateStr = `${year}-${String(month + 1).padStart(2, "0")}-${String(
+          d
+        ).padStart(2, "0")}`;
+
+        if (dateStr === todayStr) {
+          btn.classList.add("today");
+        }
+
+        if (flowsByDate[dateStr]) {
+          btn.classList.add("has-flow");
+        }
+
+        if (selectedDateStr === dateStr) {
+          btn.classList.add("selected");
+        }
+
+        btn.addEventListener("click", () => {
+          selectedDateStr = dateStr;
+          renderCalendar(currentDate);
+          showFlowsForDate(dateStr);
+        });
+
+        calendarDaysEl.appendChild(btn);
+      }
+    }
+
+    function showFlowsForDate(dateStr) {
+      selectedDateTitleEl.textContent = dateStr;
+      const list = flowsByDate[dateStr] || [];
+
+      if (list.length === 0) {
+        eventsListEl.innerHTML =
+          '<p class="no-events">這一天目前沒有流程。</p>' +
+          '<p class="hint-text">若要新增，請在 <code>date.json</code> 中加入流程，並設定 startDate/endDate。</p>';
+        return;
+      }
+
+      eventsListEl.innerHTML = "";
+
+      list.forEach((flow, index) => {
+        const card = document.createElement("div");
+        card.className = "flow-card";
+
+        const title = document.createElement("div");
+        title.className = "flow-title";
+        title.textContent = `${index + 1}. ${flow.title || "未命名流程"}`;
+        card.appendChild(title);
+
+        const range = document.createElement("div");
+        range.className = "flow-date-range";
+        range.textContent = `流程期間：${flow.startDate} ～ ${flow.endDate}`;
+        card.appendChild(range);
+
+        if (flow.description) {
+          const desc = document.createElement("div");
+          desc.className = "flow-description";
+          desc.textContent = flow.description;
+          card.appendChild(desc);
+        }
+
+        if (flow.progress && Array.isArray(flow.progress.steps)) {
+          const steps = flow.progress.steps;
+          const currentStep = Math.min(
+            Math.max(0, flow.progress.currentStep || 0),
+            steps.length - 1
+          );
+
+          const progressLabel = document.createElement("div");
+          progressLabel.className = "flow-progress-label";
+          progressLabel.textContent = `目前進度：第 ${currentStep + 1} 步 / 共 ${
+            steps.length
+          } 步（${steps[currentStep]}）`;
+          card.appendChild(progressLabel);
+
+          const progressLine = document.createElement("div");
+          progressLine.className = "progress-line";
+
+          const track = document.createElement("div");
+          track.className = "progress-track";
+          progressLine.appendChild(track);
+
+          const trackFill = document.createElement("div");
+          trackFill.className = "progress-track-fill";
+          const fillPercent =
+            steps.length > 1
+              ? (currentStep / (steps.length - 1)) * 100
+              : 100;
+          trackFill.style.width = fillPercent + "%";
+          progressLine.appendChild(trackFill);
+
+          steps.forEach((stepName, idx) => {
+            const step = document.createElement("div");
+            step.className = "progress-step";
+
+            const dot = document.createElement("div");
+            dot.className = "progress-step-dot";
+            dot.textContent = idx + 1;
+
+            if (idx < currentStep) {
+              dot.classList.add("done");
+            } else if (idx === currentStep) {
+              dot.classList.add("current");
+            }
+
+            step.appendChild(dot);
+            progressLine.appendChild(step);
+          });
+
+          card.appendChild(progressLine);
+
+          const labelsRow = document.createElement("div");
+          labelsRow.className = "progress-steps-labels";
+
+          steps.forEach((stepName) => {
+            const span = document.createElement("span");
+            span.textContent = stepName;
+            labelsRow.appendChild(span);
+          });
+
+          card.appendChild(labelsRow);
+        } else {
+          const noProgress = document.createElement("div");
+          noProgress.className = "flow-progress-label";
+          noProgress.textContent = "此流程尚未設定進度。";
+          card.appendChild(noProgress);
+        }
+
+        eventsListEl.appendChild(card);
+      });
+    }
+
+    function formatDateStr(dateObj) {
+      const y = dateObj.getFullYear();
+      const m = String(dateObj.getMonth() + 1).padStart(2, "0");
+      const d = String(dateObj.getDate()).padStart(2, "0");
+      return `${y}-${m}-${d}`;
+    }
+
+    function parseDateStr(str) {
+      const [y, m, d] = str.split("-").map(Number);
+      if (!y || !m || !d) return null;
+      return new Date(y, m - 1, d);
+    }
+
+    prevMonthBtn.addEventListener("click", () => {
+      currentDate.setMonth(currentDate.getMonth() - 1);
+      renderCalendar(currentDate);
+      selectedDateStr = "";
+      eventsListEl.innerHTML =
+        '<p class="no-events">請點選日期查看流程。</p>';
+    });
+
+    nextMonthBtn.addEventListener("click", () => {
+      currentDate.setMonth(currentDate.getMonth() + 1);
+      renderCalendar(currentDate);
+      selectedDateStr = "";
+      eventsListEl.innerHTML =
+        '<p class="no-events">請點選日期查看流程。</p>';
+    });
+
+    todayBtn.addEventListener("click", () => {
+      currentDate = new Date();
+      selectedDateStr = formatDateStr(currentDate);
+      renderCalendar(currentDate);
+      showFlowsForDate(selectedDateStr);
+    });
+
+    loadFlows();
+
+ 
+function applyAppModeIfNeeded() {
+  const isStandaloneDisplayMode =
+    window.matchMedia &&
+    window.matchMedia("(display-mode: standalone)").matches;
+
+  const isIOSStandalone = window.navigator.standalone === true;
+
+  if (isStandaloneDisplayMode || isIOSStandalone) {
+    document.body.classList.add("app-mode");
+  } else {
+    document.body.classList.remove("app-mode");
+  }
+}
+
+document.addEventListener("DOMContentLoaded", applyAppModeIfNeeded);
+
+if (window.matchMedia && window.matchMedia("(display-mode: standalone)").addEventListener) {
+  window
+    .matchMedia("(display-mode: standalone)")
+    .addEventListener("change", applyAppModeIfNeeded);
+}
+
+  </script>
+</body>
+</html>
