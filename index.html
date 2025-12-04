@@ -4,7 +4,6 @@
   <meta charset="UTF-8" />
   <title>hank的流程行程日曆</title>
   <style>
-
 body.app-mode {
   background: #101010;
   padding: 0;
@@ -77,317 +76,646 @@ body.app-mode .nav-buttons button:hover {
   background: #2a2a2a;
 }
 
+/* Modal 在 app-mode 下的樣式 */
+body.app-mode .modal-card {
+  background: #202020;
+  color: #f5f5f5;
+}
 
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
-        sans-serif;
-    }
+body.app-mode .modal-subtitle,
+body.app-mode .modal-date-range,
+body.app-mode .modal-description,
+body.app-mode .modal-step-meta {
+  color: #ccc;
+}
 
-    body {
-      min-height: 100vh;
-      background: #f5f5f5;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      padding: 20px;
-    }
+body.app-mode .modal-step {
+  background: rgba(255, 255, 255, 0.02);
+  border-color: rgba(255, 255, 255, 0.08);
+}
 
-    .calendar-wrapper {
-      background: #ffffff;
-      border-radius: 16px;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
-      max-width: 1100px;
-      width: 100%;
-      padding: 20px 24px 24px;
-      display: grid;
-      grid-template-columns: 1.1fr 1.4fr;
-      gap: 20px;
-    }
+body.app-mode .modal-step.done {
+  background: rgba(46, 204, 113, 0.08);
+  border-color: rgba(46, 204, 113, 0.6);
+}
 
-    @media (max-width: 900px) {
-      .calendar-wrapper {
-        grid-template-columns: 1fr;
-      }
-    }
+body.app-mode .modal-step.current {
+  background: rgba(255, 107, 107, 0.12);
+  border-color: rgba(255, 107, 107, 0.7);
+}
 
-    .calendar-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 12px;
-    }
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+    sans-serif;
+}
 
-    .calendar-header h2 {
-      font-size: 20px;
-      font-weight: 600;
-    }
+body {
+  min-height: 100vh;
+  background: #f5f5f5;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+}
 
-    .calendar-header span {
-      font-size: 14px;
-      color: #777;
-    }
+.calendar-wrapper {
+  background: #ffffff;
+  border-radius: 16px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+  max-width: 1100px;
+  width: 100%;
+  padding: 20px 24px 24px;
+  display: grid;
+  grid-template-columns: 1.1fr 1.4fr;
+  gap: 20px;
+}
 
-    .nav-buttons {
-      display: flex;
-      gap: 8px;
-    }
+@media (max-width: 900px) {
+  .calendar-wrapper {
+    grid-template-columns: 1fr;
+  }
+}
 
-    .nav-buttons button {
-      border: 1px solid #ddd;
-      background: #fff;
-      padding: 4px 10px;
-      border-radius: 999px;
-      font-size: 13px;
-      cursor: pointer;
-      transition: background 0.15s, transform 0.05s;
-    }
+.calendar-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
 
-    .nav-buttons button:hover {
-      background: #f0f0f0;
-    }
+.calendar-header h2 {
+  font-size: 20px;
+  font-weight: 600;
+}
 
-    .nav-buttons button:active {
-      transform: scale(0.96);
-    }
+.calendar-header span {
+  font-size: 14px;
+  color: #777;
+}
 
-    .calendar {
-      border-radius: 12px;
-      border: 1px solid #eee;
-      padding: 10px;
-    }
+.nav-buttons {
+  display: flex;
+  gap: 8px;
+}
 
-    .calendar-weekdays,
-    .calendar-days {
-      display: grid;
-      grid-template-columns: repeat(7, 1fr);
-      gap: 4px;
-    }
+.nav-buttons button {
+  border: 1px solid #ddd;
+  background: #fff;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 13px;
+  cursor: pointer;
+  transition: background 0.15s, transform 0.05s, box-shadow 0.15s;
+}
 
-    .calendar-weekdays div {
-      text-align: center;
-      font-size: 12px;
-      color: #999;
-      padding: 4px 0;
-    }
+.nav-buttons button:hover {
+  background: #f0f0f0;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+}
 
-    .calendar-days button {
-      border: none;
-      background: transparent;
-      aspect-ratio: 1 / 1;
-      border-radius: 8px;
-      font-size: 14px;
-      cursor: pointer;
-      position: relative;
-      padding: 0;
-      transition: background 0.15s, transform 0.05s;
-    }
+.nav-buttons button:active {
+  transform: scale(0.96);
+}
 
-    .calendar-days button:hover {
-      background: #f2f2f2;
-    }
+.calendar {
+  border-radius: 12px;
+  border: 1px solid #eee;
+  padding: 10px;
+}
 
-    .calendar-days button.inactive {
-      color: #ccc;
-      cursor: default;
-    }
+.calendar-weekdays,
+.calendar-days {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+}
 
-    .calendar-days button.today {
-      border: 1px solid #ff6b6b;
-    }
+.calendar-weekdays div {
+  text-align: center;
+  font-size: 12px;
+  color: #999;
+  padding: 4px 0;
+}
 
-    .calendar-days button.selected {
-      background: #ff6b6b;
-      color: #fff;
-    }
+.calendar-days button {
+  border: none;
+  background: transparent;
+  aspect-ratio: 1 / 1;
+  border-radius: 8px;
+  font-size: 14px;
+  cursor: pointer;
+  position: relative;
+  padding: 0;
+  transition: background 0.15s, transform 0.05s, box-shadow 0.15s;
+}
 
-    .calendar-days button.has-flow::after {
-      content: "";
-      position: absolute;
-      width: 6px;
-      height: 6px;
-      border-radius: 999px;
-      background: #ff6b6b;
-      bottom: 4px;
-      left: 50%;
-      transform: translateX(-50%);
-    }
+.calendar-days button:hover {
+  background: #f2f2f2;
+}
 
-    .details-panel {
-      border-radius: 12px;
-      border: 1px solid #eee;
-      padding: 14px 16px 16px;
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-      max-height: 520px;
-      overflow: hidden;
-    }
+.calendar-days button.inactive {
+  color: #ccc;
+  cursor: default;
+}
 
-    .details-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: baseline;
-      gap: 8px;
-    }
+.calendar-days button.today {
+  border: 1px solid #ff6b6b;
+}
 
-    .details-header h3 {
-      font-size: 18px;
-      font-weight: 600;
-    }
+.calendar-days button.selected {
+  background: #ff6b6b;
+  color: #fff;
+  box-shadow: 0 4px 10px rgba(255, 107, 107, 0.35);
+}
 
-    .details-header span {
-      font-size: 13px;
-      color: #999;
-    }
+.calendar-days button.has-flow::after {
+  content: "";
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  border-radius: 999px;
+  background: #ff6b6b;
+  bottom: 4px;
+  left: 50%;
+  transform: translateX(-50%);
+}
 
-    .events-list {
-      flex: 1;
-      overflow-y: auto;
-      padding-right: 6px;
-    }
+.details-panel {
+  border-radius: 12px;
+  border: 1px solid #eee;
+  padding: 14px 16px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-height: 520px;
+  overflow: hidden;
+}
 
-    .flow-card {
-      border-radius: 10px;
-      border: 1px solid #eee;
-      padding: 10px 12px;
-      margin-bottom: 10px;
-      background: #fafafa;
-    }
+.details-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 8px;
+}
 
-    .flow-title {
-      font-size: 15px;
-      font-weight: 600;
-      margin-bottom: 4px;
-    }
+.details-header h3 {
+  font-size: 18px;
+  font-weight: 600;
+}
 
-    .flow-date-range {
-      font-size: 12px;
-      color: #888;
-      margin-bottom: 4px;
-    }
+.details-header span {
+  font-size: 13px;
+  color: #999;
+}
 
-    .flow-description {
-      font-size: 13px;
-      color: #555;
-      margin-bottom: 8px;
-      white-space: pre-wrap;
-    }
+.events-list {
+  flex: 1;
+  overflow-y: auto;
+  padding-right: 6px;
+}
 
-    .flow-progress-label {
-      font-size: 13px;
-      color: #777;
-      margin-bottom: 6px;
-    }
+/* 滾動條美化（桌面時） */
+.events-list::-webkit-scrollbar {
+  width: 6px;
+}
+.events-list::-webkit-scrollbar-track {
+  background: transparent;
+}
+.events-list::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.15);
+  border-radius: 999px;
+}
 
-    .progress-line {
-      position: relative;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 8px;
-      margin-bottom: 8px;
-    }
+.flow-card {
+  border-radius: 10px;
+  border: 1px solid #eee;
+  padding: 10px 12px;
+  margin-bottom: 10px;
+  background: #fafafa;
+  cursor: pointer;
+  transition: transform 0.12s ease-out, box-shadow 0.12s ease-out,
+    border-color 0.12s ease-out, background 0.12s ease-out;
+}
 
-    .progress-track {
-      position: absolute;
-      top: 50%;
-      left: 12px;
-      right: 12px;
-      height: 3px;
-      background: #e4e4e4;
-      transform: translateY(-50%);
-      z-index: 0;
-      border-radius: 999px;
-    }
+.flow-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+  border-color: #ffb0b0;
+  background: #ffffff;
+}
 
-    .progress-track-fill {
-      position: absolute;
-      top: 50%;
-      left: 12px;
-      height: 3px;
-      background: #ff6b6b;
-      transform: translateY(-50%);
-      z-index: 1;
-      border-radius: 999px;
-      width: 0;
-      transition: width 0.2s ease-out;
-    }
+.flow-card:active {
+  transform: translateY(0px) scale(0.99);
+}
 
-    .progress-step {
-      position: relative;
-      z-index: 2;
-      flex: 1;
-      display: flex;
-      justify-content: center;
-    }
+.flow-title {
+  font-size: 15px;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
 
-    .progress-step-dot {
-      width: 18px;
-      height: 18px;
-      border-radius: 999px;
-      border: 2px solid #ccc;
-      background: #fff;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 10px;
-      font-weight: 600;
-      color: #999;
-    }
+.flow-date-range {
+  font-size: 12px;
+  color: #888;
+  margin-bottom: 4px;
+}
 
-    .progress-step-dot.done {
-      border-color: #ff6b6b;
-      background: #ff6b6b;
-      color: #fff;
-    }
+.flow-description {
+  font-size: 13px;
+  color: #555;
+  margin-bottom: 8px;
+  white-space: pre-wrap;
+}
 
-    .progress-step-dot.current {
-      border-color: #ff6b6b;
-      background: #fff;
-      color: #ff6b6b;
-      box-shadow: 0 0 0 3px rgba(255, 107, 107, 0.12);
-    }
+.flow-progress-label {
+  font-size: 13px;
+  color: #777;
+  margin-bottom: 6px;
+}
 
-    .progress-steps-labels {
-      display: flex;
-      justify-content: space-between;
-      gap: 8px;
-      margin-top: 2px;
-    }
+.progress-line {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 8px;
+}
 
-    .progress-steps-labels span {
-      flex: 1;
-      font-size: 11px;
-      text-align: center;
-      color: #666;
-      white-space: nowrap;
-      text-overflow: ellipsis;
-      overflow: hidden;
-    }
+.progress-track {
+  position: absolute;
+  top: 50%;
+  left: 12px;
+  right: 12px;
+  height: 3px;
+  background: #e4e4e4;
+  transform: translateY(-50%);
+  z-index: 0;
+  border-radius: 999px;
+}
 
-    .no-events {
-      font-size: 14px;
-      color: #999;
-      margin-top: 12px;
-    }
+.progress-track-fill {
+  position: absolute;
+  top: 50%;
+  left: 12px;
+  height: 3px;
+  background: #ff6b6b;
+  transform: translateY(-50%);
+  z-index: 1;
+  border-radius: 999px;
+  width: 0;
+  transition: width 0.2s ease-out;
+}
 
-    .hint-text {
-      font-size: 12px;
-      color: #aaa;
-      margin-top: 4px;
-    }
+.progress-step {
+  position: relative;
+  z-index: 2;
+  flex: 1;
+  display: flex;
+  justify-content: center;
+}
 
+.progress-step-dot {
+  width: 18px;
+  height: 18px;
+  border-radius: 999px;
+  border: 2px solid #ccc;
+  background: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  font-weight: 600;
+  color: #999;
+}
+
+.progress-step-dot.done {
+  border-color: #ff6b6b;
+  background: #ff6b6b;
+  color: #fff;
+}
+
+.progress-step-dot.current {
+  border-color: #ff6b6b;
+  background: #fff;
+  color: #ff6b6b;
+  box-shadow: 0 0 0 3px rgba(255, 107, 107, 0.12);
+}
+
+.progress-steps-labels {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: 2px;
+}
+
+.progress-steps-labels span {
+  flex: 1;
+  font-size: 11px;
+  text-align: center;
+  color: #666;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+}
+
+.no-events {
+  font-size: 14px;
+  color: #999;
+  margin-top: 12px;
+}
+
+.hint-text {
+  font-size: 12px;
+  color: #aaa;
+  margin-top: 4px;
+}
+
+
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.35);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  z-index: 9999;
+}
+
+.modal-backdrop.show {
+  display: flex;
+  animation: modal-backdrop-fade 200ms ease-out forwards;
+}
+
+@keyframes modal-backdrop-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.modal-card {
+  width: 100%;
+  max-width: 520px;
+  background: #ffffff;
+  border-radius: 20px;
+  padding: 18px 18px 16px;
+  box-shadow: 0 20px 45px rgba(0, 0, 0, 0.18);
+  position: relative;
+  transform: translateY(16px) scale(0.96);
+  opacity: 0;
+  animation: modal-card-enter 260ms cubic-bezier(0.22, 0.85, 0.35, 1) forwards;
+}
+
+@keyframes modal-card-enter {
+  0% {
+    opacity: 0;
+    transform: translateY(16px) scale(0.96);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.modal-close-btn {
+  position: absolute;
+  right: 12px;
+  top: 10px;
+  width: 28px;
+  height: 28px;
+  border-radius: 999px;
+  border: none;
+  background: rgba(0, 0, 0, 0.04);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  cursor: pointer;
+  transition: background 0.12s, transform 0.08s;
+}
+
+.modal-close-btn:hover {
+  background: rgba(0, 0, 0, 0.08);
+}
+
+.modal-close-btn:active {
+  transform: scale(0.94);
+}
+
+.modal-header {
+  padding-right: 36px;
+  margin-bottom: 6px;
+}
+
+.modal-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  color: #ff6b6b;
+  background: rgba(255, 107, 107, 0.08);
+  border-radius: 999px;
+  padding: 3px 9px;
+  margin-bottom: 6px;
+}
+
+.modal-tag-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 999px;
+  background: #ff6b6b;
+}
+
+.modal-title {
+  font-size: 18px;
+  font-weight: 650;
+  margin-bottom: 4px;
+}
+
+.modal-subtitle {
+  font-size: 13px;
+  color: #888;
+}
+
+.modal-date-range {
+  font-size: 12px;
+  color: #888;
+  margin-top: 4px;
+}
+
+.modal-description {
+  font-size: 13px;
+  color: #555;
+  margin: 8px 0 6px;
+  white-space: pre-wrap;
+}
+
+.modal-step-meta {
+  font-size: 13px;
+  color: #666;
+  margin-bottom: 8px;
+}
+
+.modal-steps-wrapper {
+  max-height: 260px;
+  overflow-y: auto;
+  padding-right: 4px;
+  margin-top: 4px;
+}
+
+.modal-steps-wrapper::-webkit-scrollbar {
+  width: 6px;
+}
+.modal-steps-wrapper::-webkit-scrollbar-track {
+  background: transparent;
+}
+.modal-steps-wrapper::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.15);
+  border-radius: 999px;
+}
+
+.modal-steps {
+  list-style: none;
+}
+
+.modal-step {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 8px 10px;
+  border-radius: 12px;
+  border: 1px solid #eee;
+  background: #fafafa;
+  margin-bottom: 8px;
+  opacity: 0;
+  transform: translateY(4px) scale(0.98);
+  animation: modal-step-pop 260ms cubic-bezier(0.22, 0.85, 0.35, 1) forwards;
+}
+
+@keyframes modal-step-pop {
+  0% {
+    opacity: 0;
+    transform: translateY(4px) scale(0.98);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.modal-step.done {
+  border-color: rgba(46, 204, 113, 0.5);
+  background: rgba(46, 204, 113, 0.06);
+}
+
+.modal-step.current {
+  border-color: rgba(255, 107, 107, 0.7);
+  background: rgba(255, 107, 107, 0.1);
+}
+
+.modal-step.pending {
+  opacity: 0.85;
+}
+
+.modal-step-icon {
+  flex-shrink: 0;
+  width: 22px;
+  height: 22px;
+  border-radius: 999px;
+  border: 2px solid #ddd;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 650;
+  background: #ffffff;
+}
+
+.modal-step.done .modal-step-icon {
+  border-color: #2ecc71;
+  background: #2ecc71;
+  color: #fff;
+}
+
+.modal-step.current .modal-step-icon {
+  border-color: #ff6b6b;
+  color: #ff6b6b;
+  box-shadow: 0 0 0 3px rgba(255, 107, 107, 0.15);
+}
+
+.modal-step-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.modal-step-title-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 4px;
+}
+
+.modal-step-title {
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.modal-step-badge {
+  font-size: 11px;
+  border-radius: 999px;
+  padding: 2px 7px;
+  background: rgba(0, 0, 0, 0.04);
+}
+
+.modal-step.done .modal-step-badge {
+  background: rgba(46, 204, 113, 0.08);
+  color: #27ae60;
+}
+
+.modal-step.current .modal-step-badge {
+  background: rgba(255, 107, 107, 0.15);
+  color: #ff6b6b;
+}
+
+.modal-step-name {
+  font-size: 13px;
+  color: #555;
+  margin-top: 4px;
+}
+
+.modal-footer {
+  margin-top: 8px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.modal-footer-text {
+  font-size: 11px;
+  color: #aaa;
+}
+
+@media (max-width: 600px) {
+  .modal-card {
+    padding: 16px 14px 12px;
+  }
+}
   </style>
+
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Hank的流程日曆">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Hank的流程日曆">
 
-<link rel="apple-touch-icon" href="Hank_schedule180.png">
-
+  <link rel="apple-touch-icon" href="Hank_schedule180.png">
 </head>
 <body>
   <div class="calendar-wrapper">
@@ -430,8 +758,34 @@ body.app-mode .nav-buttons button:hover {
     </div>
   </div>
 
-  <script>
+  <div class="modal-backdrop" id="flowModalBackdrop">
+    <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="modalFlowTitle">
+      <button class="modal-close-btn" type="button" data-modal-close>&times;</button>
+      <div class="modal-header">
+        <div class="modal-tag">
+          <span class="modal-tag-dot"></span>
+          <span>流程詳細步驟</span>
+        </div>
+        <h3 class="modal-title" id="modalFlowTitle">流程名稱</h3>
+        <div class="modal-subtitle" id="modalFlowSubtitle">第 X 步 / 共 N 步</div>
+        <div class="modal-date-range" id="modalFlowDateRange">期間：YYYY-MM-DD ～ YYYY-MM-DD</div>
+      </div>
+      <div class="modal-description" id="modalFlowDescription">
+        流程說明文字會顯示在這裡。
+      </div>
+      <div class="modal-step-meta" id="modalStepMeta">
+        目前進度：第 X 步 / 共 N 步
+      </div>
+      <div class="modal-steps-wrapper">
+        <ul class="modal-steps" id="modalSteps"></ul>
+      </div>
+      <div class="modal-footer">
+        <span class="modal-footer-text">Tip：可在 <code>date.json</code> 中調整 progress.currentStep 與 steps。</span>
+      </div>
+    </div>
+  </div>
 
+  <script>
     const monthYearEl = document.getElementById("monthYear");
     const todayTextEl = document.getElementById("todayText");
     const calendarDaysEl = document.getElementById("calendarDays");
@@ -443,9 +797,9 @@ body.app-mode .nav-buttons button:hover {
     const todayBtn = document.getElementById("todayBtn");
 
     let currentDate = new Date();
-    let flows = [];         
-    let flowsByDate = {};   
-    let selectedDateStr = ""; 
+    let flows = [];
+    let flowsByDate = {};
+    let selectedDateStr = "";
 
     async function loadFlows() {
       try {
@@ -485,11 +839,11 @@ body.app-mode .nav-buttons button:hover {
 
     function renderCalendar(dateObj) {
       const year = dateObj.getFullYear();
-      const month = dateObj.getMonth(); // 0-based
+      const month = dateObj.getMonth();
 
       const firstDayOfMonth = new Date(year, month, 1);
       const lastDayOfMonth = new Date(year, month + 1, 0);
-      const firstWeekday = firstDayOfMonth.getDay(); // 0=Sun
+      const firstWeekday = firstDayOfMonth.getDay();
       const daysInMonth = lastDayOfMonth.getDate();
 
       const monthNames = [
@@ -641,6 +995,10 @@ body.app-mode .nav-buttons button:hover {
           card.appendChild(noProgress);
         }
 
+        card.addEventListener("click", () => {
+          openFlowModal(flow);
+        });
+
         eventsListEl.appendChild(card);
       });
     }
@@ -683,29 +1041,178 @@ body.app-mode .nav-buttons button:hover {
 
     loadFlows();
 
- 
-function applyAppModeIfNeeded() {
-  const isStandaloneDisplayMode =
-    window.matchMedia &&
-    window.matchMedia("(display-mode: standalone)").matches;
+    function applyAppModeIfNeeded() {
+      const isStandaloneDisplayMode =
+        window.matchMedia &&
+        window.matchMedia("(display-mode: standalone)").matches;
 
-  const isIOSStandalone = window.navigator.standalone === true;
+      const isIOSStandalone = window.navigator.standalone === true;
 
-  if (isStandaloneDisplayMode || isIOSStandalone) {
-    document.body.classList.add("app-mode");
-  } else {
-    document.body.classList.remove("app-mode");
-  }
-}
+      if (isStandaloneDisplayMode || isIOSStandalone) {
+        document.body.classList.add("app-mode");
+      } else {
+        document.body.classList.remove("app-mode");
+      }
+    }
 
-document.addEventListener("DOMContentLoaded", applyAppModeIfNeeded);
+    document.addEventListener("DOMContentLoaded", applyAppModeIfNeeded);
 
-if (window.matchMedia && window.matchMedia("(display-mode: standalone)").addEventListener) {
-  window
-    .matchMedia("(display-mode: standalone)")
-    .addEventListener("change", applyAppModeIfNeeded);
-}
+    if (window.matchMedia && window.matchMedia("(display-mode: standalone)").addEventListener) {
+      window
+        .matchMedia("(display-mode: standalone)")
+        .addEventListener("change", applyAppModeIfNeeded);
+    }
 
+    const flowModalBackdrop = document.getElementById("flowModalBackdrop");
+    const modalFlowTitleEl = document.getElementById("modalFlowTitle");
+    const modalFlowSubtitleEl = document.getElementById("modalFlowSubtitle");
+    const modalFlowDateRangeEl = document.getElementById("modalFlowDateRange");
+    const modalFlowDescriptionEl = document.getElementById("modalFlowDescription");
+    const modalStepMetaEl = document.getElementById("modalStepMeta");
+    const modalStepsEl = document.getElementById("modalSteps");
+
+    const modalCloseButtons = document.querySelectorAll("[data-modal-close]");
+
+    function openFlowModal(flow) {
+      const title = flow.title || "未命名流程";
+      modalFlowTitleEl.textContent = title;
+      modalFlowDateRangeEl.textContent = `流程期間：${flow.startDate} ～ ${flow.endDate}`;
+
+      modalFlowDescriptionEl.textContent =
+        flow.description && flow.description.trim()
+          ? flow.description
+          : "此流程尚未撰寫說明。可於 date.json 的 description 欄位補上說明。";
+
+      modalStepsEl.innerHTML = "";
+
+      if (flow.progress && Array.isArray(flow.progress.steps) && flow.progress.steps.length > 0) {
+        const steps = flow.progress.steps;
+        const currentStep = Math.min(
+          Math.max(0, flow.progress.currentStep || 0),
+          steps.length - 1
+        );
+
+        modalFlowSubtitleEl.textContent = `第 ${currentStep + 1} 步 / 共 ${steps.length} 步`;
+        modalStepMetaEl.textContent = `目前進度：第 ${currentStep + 1} 步 / 共 ${steps.length} 步`;
+
+        steps.forEach((stepName, idx) => {
+          const li = document.createElement("li");
+          li.className = "modal-step";
+
+          if (idx < currentStep) {
+            li.classList.add("done");
+          } else if (idx === currentStep) {
+            li.classList.add("current");
+          } else {
+            li.classList.add("pending");
+          }
+
+          li.style.animationDelay = `${idx * 70}ms`;
+
+          const icon = document.createElement("div");
+          icon.className = "modal-step-icon";
+          icon.textContent = idx + 1;
+
+          const content = document.createElement("div");
+          content.className = "modal-step-content";
+
+          const titleRow = document.createElement("div");
+          titleRow.className = "modal-step-title-row";
+
+          const stepTitle = document.createElement("div");
+          stepTitle.className = "modal-step-title";
+          stepTitle.textContent = `第 ${idx + 1} 步`;
+
+          const badge = document.createElement("div");
+          badge.className = "modal-step-badge";
+          if (idx < currentStep) {
+            badge.textContent = "已完成";
+          } else if (idx === currentStep) {
+            badge.textContent = "進行中";
+          } else {
+            badge.textContent = "尚未開始";
+          }
+
+          titleRow.appendChild(stepTitle);
+          titleRow.appendChild(badge);
+
+          const stepNameEl = document.createElement("div");
+          stepNameEl.className = "modal-step-name";
+          stepNameEl.textContent = stepName;
+
+          content.appendChild(titleRow);
+          content.appendChild(stepNameEl);
+
+          li.appendChild(icon);
+          li.appendChild(content);
+
+          modalStepsEl.appendChild(li);
+        });
+      } else {
+        modalFlowSubtitleEl.textContent = "尚未設定步驟";
+        modalStepMetaEl.textContent = "此流程尚未設定進度。請於 date.json 中加入 progress.steps。";
+
+        const li = document.createElement("li");
+        li.className = "modal-step pending";
+        li.style.animationDelay = "0ms";
+
+        const icon = document.createElement("div");
+        icon.className = "modal-step-icon";
+        icon.textContent = "!";
+
+        const content = document.createElement("div");
+        content.className = "modal-step-content";
+
+        const titleRow = document.createElement("div");
+        titleRow.className = "modal-step-title-row";
+
+        const stepTitle = document.createElement("div");
+        stepTitle.className = "modal-step-title";
+        stepTitle.textContent = "尚未設定步驟";
+
+        const badge = document.createElement("div");
+        badge.className = "modal-step-badge";
+        badge.textContent = "提醒";
+
+        titleRow.appendChild(stepTitle);
+        titleRow.appendChild(badge);
+
+        const stepNameEl = document.createElement("div");
+        stepNameEl.className = "modal-step-name";
+        stepNameEl.textContent =
+          "你可以在 date.json 的 progress.steps 中加入每一個步驟名稱，並使用 currentStep 來標記目前進度。";
+
+        content.appendChild(titleRow);
+        content.appendChild(stepNameEl);
+
+        li.appendChild(icon);
+        li.appendChild(content);
+
+        modalStepsEl.appendChild(li);
+      }
+
+      flowModalBackdrop.classList.add("show");
+    }
+
+    function closeFlowModal() {
+      flowModalBackdrop.classList.remove("show");
+    }
+
+    modalCloseButtons.forEach(btn => {
+      btn.addEventListener("click", closeFlowModal);
+    });
+
+    flowModalBackdrop.addEventListener("click", (e) => {
+      if (e.target === flowModalBackdrop) {
+        closeFlowModal();
+      }
+    });
+
+    window.addEventListener("keydown", (e) => {
+      if (e.key === "Escape") {
+        closeFlowModal();
+      }
+    });
   </script>
 </body>
 </html>
