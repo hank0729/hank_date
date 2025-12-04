@@ -3,233 +3,449 @@
 <head>
 <meta charset="UTF-8">
 <title>JSON 產生器 - 流程行程</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <style>
-    body {
-        font-family: system-ui, -apple-system;
-        background: #111;
-        color: #fff;
-        padding: 20px;
-        line-height: 1.6;
-    }
+* {
+  box-sizing: border-box;
+}
 
-    h1 {
-        margin-bottom: 20px;
-        font-size: 26px;
-        text-align: center;
-    }
+body {
+  margin: 0;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background:
+    radial-gradient(circle at 10% 0%, #333 0, transparent 55%),
+    radial-gradient(circle at 90% 100%, #222 0, transparent 55%),
+    #050608;
+  color: #f5f5f5;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  padding: 16px;
+}
 
-    .flow-card {
-        background: #1b1b1b;
-        padding: 16px;
-        border-radius: 12px;
-        border: 1px solid #333;
-        margin-bottom: 20px;
-    }
+.app-shell {
+  width: 100%;
+  max-width: 480px;
+  border-radius: 28px;
+  background: linear-gradient(145deg, #111318, #050608);
+  box-shadow:
+    0 18px 40px rgba(0,0,0,0.65),
+    0 0 0 1px rgba(255,255,255,0.05);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
 
-    label {
-        font-size: 13px;
-        color: #ccc;
-    }
+.app-header {
+  padding: 14px 18px 10px;
+  background: linear-gradient(135deg, #ff6b6b, #ff9966);
+  color: #fff;
+  position: relative;
+}
 
-    input, textarea, select {
-        width: 100%;
-        padding: 8px;
-        margin-top: 4px;
-        margin-bottom: 12px;
-        background: #222;
-        border: 1px solid #444;
-        border-radius: 6px;
-        color: #fff;
-    }
+.app-header::after {
+  content: "";
+  position: absolute;
+  inset: auto 16px -10px;
+  height: 22px;
+  border-radius: 20px;
+  background: radial-gradient(circle at 50% 0, rgba(0,0,0,0.28), transparent 60%);
+  opacity: .4;
+}
 
-    textarea {
-        height: 70px;
-    }
+.app-title {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 800;
+}
 
-    button {
-        padding: 10px 18px;
-        background: #ff5555;
-        color: white;
-        border: none;
-        border-radius: 8px;
-        cursor: pointer;
-        margin-right: 8px;
-        margin-top: 8px;
-        font-weight: bold;
-    }
+.app-subtitle {
+  margin: 2px 0 0;
+  font-size: 12px;
+  opacity: 0.85;
+}
 
-    button:hover {
-        background: #ff7777;
-    }
+.app-main {
+  flex: 1;
+  padding: 14px 16px 80px;
+  overflow-y: auto;
+}
 
-    .steps-area {
-        background: #222;
-        padding: 10px;
-        border-radius: 8px;
-        border: 1px solid #444;
-        margin-bottom: 12px;
-    }
+.app-footer {
+  position: sticky;
+  bottom: 0;
+  padding: 10px 12px 14px;
+  background: linear-gradient(to top, rgba(5,6,8,0.9), rgba(5,6,8,0.3));
+  backdrop-filter: blur(18px);
+  display: flex;
+  gap: 10px;
+  justify-content: space-between;
+}
 
-    .step-item {
-        display: flex;
-        gap: 8px;
-        margin-bottom: 8px;
-    }
+label {
+  font-size: 12px;
+  color: #aaa;
+  display: block;
+  margin-bottom: 4px;
+}
 
-    .step-item input {
-        flex: 1;
-    }
+input,
+textarea,
+select {
+  width: 100%;
+  padding: 8px 10px;
+  margin-bottom: 10px;
+  border-radius: 10px;
+  border: 1px solid #2f3239;
+  background: #14161c;
+  color: #f5f5f5;
+  font-size: 13px;
+  outline: none;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+}
 
-    pre {
-        background: #000;
-        color: #0f0;
-        padding: 16px;
-        border-radius: 8px;
-        margin-top: 20px;
-        white-space: pre-wrap;
-    }
+input:focus,
+textarea:focus,
+select:focus {
+  border-color: #ff6b6b;
+  box-shadow: 0 0 0 2px rgba(255,107,107,0.25);
+}
 
+textarea {
+  min-height: 70px;
+  resize: vertical;
+}
+
+.flow-card {
+  background: radial-gradient(circle at 0 0, rgba(255,255,255,0.06), transparent 60%),
+              #101117;
+  padding: 14px 14px 12px;
+  border-radius: 18px;
+  border: 1px solid rgba(255,255,255,0.06);
+  margin-bottom: 14px;
+  box-shadow: 0 12px 24px rgba(0,0,0,0.5);
+}
+
+.flow-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.flow-card-title {
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.flow-card-id {
+  font-size: 10px;
+  color: #777;
+}
+
+.steps-area {
+  background: #0c0e13;
+  padding: 8px 10px;
+  border-radius: 12px;
+  border: 1px solid #262933;
+  margin-bottom: 10px;
+}
+
+.steps-title-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 4px;
+  font-size: 12px;
+}
+
+.steps-count {
+  font-size: 11px;
+  color: #888;
+}
+
+.step-item {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 6px;
+}
+
+.step-item input {
+  flex: 1;
+  margin-bottom: 0;
+}
+
+button {
+  padding: 9px 14px;
+  border-radius: 999px;
+  border: none;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  transition: transform 0.12s ease, box-shadow 0.12s ease, background 0.12s ease, opacity 0.12s ease;
+}
+
+button:active {
+  transform: translateY(1px);
+  box-shadow: none;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #ff6b6b, #ff9966);
+  color: #fff;
+  box-shadow: 0 10px 18px rgba(255,107,107,0.45);
+}
+
+.btn-secondary {
+  background: #191b22;
+  color: #f5f5f5;
+  border: 1px solid #343743;
+}
+
+.btn-ghost {
+  padding: 6px 10px;
+  font-size: 11px;
+  border-radius: 999px;
+  background: transparent;
+  color: #aaa;
+  border: 1px solid rgba(255,255,255,0.09);
+}
+
+button:hover {
+  opacity: 0.95;
+}
+
+.btn-danger {
+  background: #2a1114;
+  color: #ff8080;
+  border: 1px solid #552026;
+}
+
+.top-toolbar {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.output-block {
+  margin-top: 10px;
+  padding: 12px 10px;
+  border-radius: 16px;
+  border: 1px solid rgba(255,255,255,0.08);
+  background: #050608;
+}
+
+.output-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+}
+
+.output-header h2 {
+  font-size: 14px;
+  margin: 0;
+}
+
+pre {
+  background: #020306;
+  color: #a5ff9f;
+  padding: 10px;
+  border-radius: 12px;
+  margin: 0;
+  white-space: pre-wrap;
+  word-break: break-all;
+  font-size: 12px;
+}
+
+@media (max-width: 480px) {
+  .app-main {
+    padding: 12px 12px 80px;
+  }
+}
 </style>
 </head>
 <body>
 
-<h1>流程 JSON 自動產生器</h1>
+<div class="app-shell">
+  <!-- App Bar -->
+  <header class="app-header">
+    <h1 class="app-title">流程 JSON 產生器</h1>
+    <p class="app-subtitle">設計你的流程、步驟與進度，匯出成 JSON 檔</p>
+  </header>
 
-<div id="flows"></div>
+  <main class="app-main">
+    <div class="top-toolbar">
+      <button class="btn-primary" onclick="addFlow()">＋ 新增流程</button>
+      <button class="btn-secondary" onclick="generateJSON()">🧾 產生 JSON</button>
+    </div>
 
-<button onclick="addFlow()">＋ 新增流程</button>
-<button onclick="generateJSON()">產生 JSON</button>
+    <div id="flows"></div>
 
-<h2>輸出 JSON</h2>
-<button onclick="copyJSON()">📋 複製 JSON</button>
-<pre id="output">{}</pre>
+    <section class="output-block">
+      <div class="output-header">
+        <h2>輸出 JSON</h2>
+        <button class="btn-ghost" onclick="copyJSON()">📋 複製</button>
+      </div>
+      <pre id="output">{}</pre>
+    </section>
+  </main>
+
+  <footer class="app-footer">
+    <button class="btn-secondary" style="flex:1;" onclick="addFlow()">＋ 流程</button>
+    <button class="btn-primary" style="flex:1;" onclick="generateJSON()">產生 JSON</button>
+  </footer>
+</div>
 
 <script>
 let flows = JSON.parse(localStorage.getItem("flows-maker") || "[]");
 const flowsDiv = document.getElementById("flows");
 
 function save() {
-    localStorage.setItem("flows-maker", JSON.stringify(flows));
+  localStorage.setItem("flows-maker", JSON.stringify(flows));
 }
 
 function render() {
-    flowsDiv.innerHTML = "";
-    flows.forEach((flow, index) => {
-        const card = document.createElement("div");
-        card.className = "flow-card";
+  flowsDiv.innerHTML = "";
+  flows.forEach((flow, index) => {
+    const card = document.createElement("div");
+    card.className = "flow-card";
 
-        card.innerHTML = `
-            <label>流程標題</label>
-            <input value="${flow.title}" onchange="updateFlow(${index}, 'title', this.value)">
+    card.innerHTML = `
+      <div class="flow-card-header">
+        <div>
+          <div class="flow-card-title">${flow.title || "未命名流程"}</div>
+          <div class="flow-card-id">ID：${flow.id}</div>
+        </div>
+        <button class="btn-danger btn-ghost" onclick="removeFlow(${index})">🗑 刪除</button>
+      </div>
 
-            <label>流程說明</label>
-            <textarea onchange="updateFlow(${index}, 'description', this.value)">${flow.description}</textarea>
+      <label>流程標題</label>
+      <input value="${flow.title}" placeholder="例如：水稻施肥流程"
+             onchange="updateFlow(${index}, 'title', this.value)">
 
-            <label>開始日期</label>
-            <input type="date" value="${flow.startDate}" onchange="updateFlow(${index}, 'startDate', this.value)">
+      <label>流程說明</label>
+      <textarea placeholder="簡單描述這個流程的用途"
+                onchange="updateFlow(${index}, 'description', this.value)">${flow.description}</textarea>
 
-            <label>結束日期</label>
-            <input type="date" value="${flow.endDate}" onchange="updateFlow(${index}, 'endDate', this.value)">
+      <label>開始日期</label>
+      <input type="date" value="${flow.startDate}"
+             onchange="updateFlow(${index}, 'startDate', this.value)">
 
-            <label>流程步驟</label>
+      <label>結束日期</label>
+      <input type="date" value="${flow.endDate}"
+             onchange="updateFlow(${index}, 'endDate', this.value)">
 
-            <div class="steps-area" id="steps-${index}">
-            </div>
+      <div class="steps-area" id="steps-${index}">
+        <div class="steps-title-row">
+          <span>流程步驟</span>
+          <span class="steps-count">${flow.progress.steps.length} 個步驟</span>
+        </div>
+      </div>
 
-            <button onclick="addStep(${index})">＋ 新增步驟</button>
+      <button class="btn-ghost" onclick="addStep(${index})">＋ 新增步驟</button>
 
-            <label>目前進度 (0 = 第一步)</label>
-            <input type="number" min="0" value="${flow.progress.currentStep}" 
-                   onchange="updateCurrentStep(${index}, this.value)">
-            
-            <button onclick="removeFlow(${index})">🗑 刪除流程</button>
-        `;
+      <label>目前進度（0 表示第一步）</label>
+      <input type="number" min="0" value="${flow.progress.currentStep}"
+             onchange="updateCurrentStep(${index}, this.value)">
+    `;
 
-        flowsDiv.appendChild(card);
-        renderSteps(index);
-    });
+    flowsDiv.appendChild(card);
+    renderSteps(index);
+  });
 }
 
 function addFlow() {
-    flows.push({
-        id: "flow-" + Date.now(),
-        title: "",
-        description: "",
-        startDate: "",
-        endDate: "",
-        progress: {
-            steps: ["開始", "結束"],
-            currentStep: 0
-        }
-    });
-    save();
-    render();
+  flows.push({
+    id: "flow-" + Date.now(),
+    title: "",
+    description: "",
+    startDate: "",
+    endDate: "",
+    progress: {
+      steps: ["開始", "結束"],
+      currentStep: 0
+    }
+  });
+  save();
+  render();
 }
 
 function removeFlow(index) {
-    flows.splice(index, 1);
-    save();
-    render();
+  if (!confirm("確定要刪除此流程？")) return;
+  flows.splice(index, 1);
+  save();
+  render();
 }
 
 function updateFlow(index, field, value) {
-    flows[index][field] = value;
-    save();
+  flows[index][field] = value;
+  save();
 }
 
 function addStep(flowIndex) {
-    flows[flowIndex].progress.steps.push("");
-    save();
-    renderSteps(flowIndex);
+  flows[flowIndex].progress.steps.push("");
+  save();
+  renderSteps(flowIndex);
 }
 
 function updateStep(flowIndex, stepIndex, value) {
-    flows[flowIndex].progress.steps[stepIndex] = value;
-    save();
+  flows[flowIndex].progress.steps[stepIndex] = value;
+  save();
 }
 
 function updateCurrentStep(flowIndex, value) {
-    flows[flowIndex].progress.currentStep = Number(value);
-    save();
+  flows[flowIndex].progress.currentStep = Number(value);
+  save();
 }
 
 function renderSteps(flowIndex) {
-    const stepsDiv = document.getElementById(`steps-${flowIndex}`);
-    stepsDiv.innerHTML = "";
+  const stepsDiv = document.getElementById(`steps-${flowIndex}`);
+  stepsDiv.innerHTML = stepsDiv.innerHTML; // 保留標題列
+  const stepsContainer = document.createElement("div");
 
-    flows[flowIndex].progress.steps.forEach((step, stepIndex) => {
-        const div = document.createElement("div");
-        div.className = "step-item";
-        div.innerHTML = `
-            <input value="${step}" placeholder="步驟名稱"
-                   onchange="updateStep(${flowIndex}, ${stepIndex}, this.value)">
-            <button onclick="deleteStep(${flowIndex}, ${stepIndex})">X</button>
-        `;
-        stepsDiv.appendChild(div);
-    });
+  flows[flowIndex].progress.steps.forEach((step, stepIndex) => {
+    const div = document.createElement("div");
+    div.className = "step-item";
+    div.innerHTML = `
+      <input value="${step}" placeholder="步驟名稱"
+             onchange="updateStep(${flowIndex}, ${stepIndex}, this.value)">
+      <button class="btn-danger btn-ghost" onclick="deleteStep(${flowIndex}, ${stepIndex})">✕</button>
+    `;
+    stepsContainer.appendChild(div);
+  });
+
+  stepsDiv.appendChild(stepsContainer);
 }
 
 function deleteStep(flowIndex, stepIndex) {
-    flows[flowIndex].progress.steps.splice(stepIndex, 1);
-    save();
-    renderSteps(flowIndex);
+  flows[flowIndex].progress.steps.splice(stepIndex, 1);
+  save();
+  renderSteps(flowIndex);
 }
 
 function generateJSON() {
-    const result = {
-        flows: flows
-    };
-    document.getElementById("output").textContent = JSON.stringify(result, null, 4);
+  const result = {
+    flows: flows
+  };
+  document.getElementById("output").textContent =
+    JSON.stringify(result, null, 4);
 }
 
 function copyJSON() {
-    const text = document.getElementById("output").textContent;
-    navigator.clipboard.writeText(text);
-    alert("已複製到剪貼簿！");
+  const text = document.getElementById("output").textContent;
+  navigator.clipboard.writeText(text);
+  alert("已複製到剪貼簿！");
 }
 
 render();
-
 </script>
 
 </body>
